@@ -48,6 +48,14 @@
             text-shadow: 0 0 15px rgba(255, 153, 204, 0.8);
             z-index: 10;
         }
+        .text-container.envelope-text {
+            font-size: 2.5rem;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 153, 204, 1);
+            background: rgba(26, 13, 43, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
         .text-container p {
             opacity: 0;
             margin: 15px 0;
@@ -212,6 +220,13 @@
             border-radius: 5px;
             transform: rotate(10deg);
         }
+        .star-particle {
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+        }
         .background-forest {
             background: linear-gradient(to bottom, #2e1e4a, #4a7043);
         }
@@ -308,21 +323,6 @@
         .background-stars {
             background: #1a0d2b;
         }
-        .stars {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, #fff 1px, transparent 1px);
-            background-size: 10px 10px;
-            opacity: 0.7;
-            animation: twinkle 3s infinite;
-        }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
         .background-letter {
             background: linear-gradient(to bottom, #fff0f5, #f5e6cc);
         }
@@ -368,6 +368,9 @@
                 font-size: 1.4rem;
                 max-width: 90%;
             }
+            .text-container.envelope-text {
+                font-size: 1.8rem;
+            }
             .continue-btn {
                 font-size: 1rem;
                 padding: 12px 25px;
@@ -388,7 +391,7 @@
             .pen {
                 width: 30px;
             }
-            .firefly {
+            .firefly, .star-particle {
                 width: 8px;
                 height: 8px;
             }
@@ -423,6 +426,9 @@
         @media (min-width: 769px) and (max-width: 1024px) {
             .text-container {
                 font-size: 1.8rem;
+            }
+            .text-container.envelope-text {
+                font-size: 2.2rem;
             }
             .continue-btn {
                 font-size: 1.1rem;
@@ -498,8 +504,7 @@
             <button class="continue-btn">Continue</button>
         </div>
         <div id="envelope-scene" class="scene background-stars">
-            <div class="stars"></div>
-            <div class="text-container" style="top: 70%;">
+            <div class="text-container envelope-text" style="top: 30%;">
                 <p>A special letter waits for you...</p>
             </div>
             <div class="envelope"></div>
@@ -535,7 +540,7 @@
         ];
         let audioPlaying = true;
         let hasInteracted = false;
-        const LS1_DURATION = 11; // Duration for LS1.mp3 in envelope scene
+        const LS1_DURATION = 10; // Duration for LS1.mp3 in envelope scene
 
         function createFireflies(scene, count) {
             for (let i = 0; i < count; i++) {
@@ -612,6 +617,24 @@
                         poem.style.left = `${Math.random() * 100}%`;
                         poem.style.top = '100%';
                     }
+                });
+            }
+        }
+
+        function createStarParticles(scene, count) {
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'particle star-particle';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                scene.appendChild(star);
+                gsap.to(star, {
+                    opacity: Math.random() * 0.3 + 0.5,
+                    scale: Math.random() * 0.5 + 0.8,
+                    duration: 1.5 + Math.random() * 1.5,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'sine.inOut'
                 });
             }
         }
@@ -701,7 +724,7 @@
                 const pen = scene.querySelector('.pen');
                 gsap.to(pen, { rotation: 45, duration: 1, repeat: -1, yoyo: true, ease: 'sine.inOut' });
                 if (hasInteracted && audioPlaying) {
-                    audioTracks[0].playbackRate = 1;
+                    audioTracks[0].playbackRate = 1.5;
                     audioTracks[0].play().catch(error => {
                         console.log('Audio play failed:', error);
                     });
@@ -720,7 +743,7 @@
                 createButterflies(scene, 20);
                 createPoems(scene, 8);
             } else if (index === 5) {
-                createFireflies(scene, 10);
+                createStarParticles(scene, 10);
                 const envelopeText = scene.querySelector('.text-container p');
                 gsap.to(envelopeText, { opacity: 1, y: -20, duration: 1.8, delay: 0.75, ease: 'power2.out' });
                 gsap.to(envelope, { y: -10, duration: 4.5, repeat: -1, yoyo: true, ease: 'sine.inOut' });
