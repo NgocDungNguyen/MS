@@ -19,6 +19,7 @@
             width: 100%;
             height: 100%;
             position: relative;
+            display: none;
         }
         .scene {
             width: 100%;
@@ -96,10 +97,8 @@
             background: linear-gradient(to bottom, #f5e6cc, #f0d8a8);
             border: 4px solid #ff99cc;
             border-radius: 12px;
-            cursor: pointer;
             box-shadow: 0 0 30px rgba(255, 153, 204, 0.7);
             z-index: 10;
-            pointer-events: auto;
         }
         .envelope::before {
             content: '';
@@ -165,36 +164,17 @@
             font-size: 1.8rem;
             margin-left: 15px;
         }
-        .audio-controls {
+        .volume-toggle {
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 1000;
-        }
-        .audio-controls button {
-            padding: 10px 15px;
-            margin-left: 10px;
+            padding: 10px;
             background: rgba(255, 153, 204, 0.5);
             border: 2px solid #ff99cc;
             border-radius: 8px;
             color: #f5e6cc;
             cursor: pointer;
-            font-family: 'Arial', sans-serif;
-            font-size: 0.9rem;
-            pointer-events: auto;
-        }
-        .skip-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            padding: 10px 15px;
-            background: rgba(255, 153, 204, 0.5);
-            border: 2px solid #ff99cc;
-            border-radius: 8px;
-            color: #f5e6cc;
-            cursor: pointer;
-            font-family: 'Arial', sans-serif;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
             z-index: 1000;
             pointer-events: auto;
         }
@@ -346,6 +326,43 @@
         .background-letter {
             background: linear-gradient(to bottom, #fff0f5, #f5e6cc);
         }
+        .start-notice {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(26, 13, 43, 0.95);
+            color: #f5e6cc;
+            text-align: center;
+            font-size: 1.8rem;
+            font-family: 'Great Vibes', cursive;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .start-notice p {
+            margin: 15px 0;
+        }
+        .start-btn {
+            padding: 15px 35px;
+            background: linear-gradient(45deg, #ff99cc, #ffccff);
+            border: 3px solid #f5e6cc;
+            border-radius: 25px;
+            font-family: 'Arial', sans-serif;
+            font-size: 1.2rem;
+            color: #4a2e4a;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 153, 204, 0.6);
+            transition: transform 0.3s;
+        }
+        .start-btn:hover {
+            background: linear-gradient(45deg, #ffccff, #ff99cc);
+            transform: scale(1.05);
+        }
         @media (max-width: 768px) {
             .text-container {
                 font-size: 1.4rem;
@@ -387,27 +404,19 @@
                 width: 35px;
                 height: 50px;
             }
-            .orientation-message {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(26, 13, 43, 0.95);
-                color: #f5e6cc;
-                text-align: center;
-                padding-top: 50%;
-                font-size: 1.4rem;
-                font-family: 'Great Vibes', cursive;
-                z-index: 10000;
+            .start-notice {
+                font-size: 1.2rem;
             }
-            @media (orientation: portrait) {
-                .orientation-message {
-                    display: block;
+            .start-btn {
+                font-size: 1rem;
+                padding: 12px 25px;
+            }
+            @media (orientation: landscape) {
+                .start-notice {
+                    display: none;
                 }
                 #app {
-                    display: none;
+                    display: block;
                 }
             }
         }
@@ -425,20 +434,23 @@
             .letter {
                 font-size: 1.4rem;
             }
+            .start-notice {
+                font-size: 1.6rem;
+            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Georgia&family=Arial&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
-    <div class="orientation-message">Please rotate your device to landscape mode for a magical experience.</div>
+    <div class="start-notice" id="start-notice">
+        <p>Rotate your device to landscape mode for a magical experience.</p>
+        <p>Turn up the volume or use one headphone.</p>
+        <p>Click Begin to start your journey! ✨</p>
+        <button class="start-btn" id="start-btn">Begin</button>
+    </div>
     <div id="app">
-        <button class="skip-btn" id="skip-btn">Skip to Letter</button>
-        <div class="audio-controls">
-            <button id="audio-toggle">Pause Audio</button>
-            <button id="volume-down">Volume Down</button>
-            <button id="volume-up">Volume Up</button>
-        </div>
+        <button class="volume-toggle" id="volume-toggle">🔊</button>
         <div id="scene1" class="scene background-forest">
             <div class="trees"></div>
             <div class="brook"></div>
@@ -499,22 +511,31 @@
                 <p>Your final exams are a door to new adventures. Like leaving your forest, you're ready to step into university, where new friends and dreams await.</p>
                 <p>Your hard work and kind heart are your strength. These high school years made you strong, ready to soar.</p>
                 <p>Go shine in your exams, sweet muse! Your future is full of light, and I'm cheering for you.</p>
-                <p>With love and belief in you,</p>
+                <p>With hope and belief in you,</p>
                 <p>Your Inner Spark</p>
             </div>
         </div>
     </div>
     <audio id="track1" loop>
-        <source src="https://www.kozco.com/tech/piano2-CoolEdit.mp3" type="audio/mpeg">
+        <source src="./Fairy Lands.mp3" type="audio/mpeg">
     </audio>
     <audio id="track2">
-        <source src="https://www.kozco.com/tech/LRMonoPhase4.mp3" type="audio/mpeg">
+        <source src="./LS1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="track3">
+        <source src="./LS2.mp3" type="audio/mpeg">
     </audio>
     <script>
         const scenes = ['scene1', 'scene2', 'scene3', 'scene4', 'scene5', 'envelope-scene', 'letter-scene'];
         let currentSceneIndex = 0;
-        const audioTracks = [document.getElementById('track1'), document.getElementById('track2')];
+        const audioTracks = [
+            document.getElementById('track1'), // Fairy Lands.mp3
+            document.getElementById('track2'), // LS1.mp3
+            document.getElementById('track3')  // LS2.mp3
+        ];
         let audioPlaying = true;
+        let hasInteracted = false;
+        const LS1_DURATION = 11; // Duration for LS1.mp3 in envelope scene
 
         function createFireflies(scene, count) {
             for (let i = 0; i < count; i++) {
@@ -613,7 +634,6 @@
                 envelope.classList.remove('open');
                 gsap.set(envelope, { opacity: 1, scale: 1, rotation: 0 });
                 envelope.style.display = 'none';
-                envelope.style.pointerEvents = 'none';
             }
             const letter = scene.querySelector('.letter');
             if (letter) {
@@ -623,6 +643,20 @@
                 letter.style.display = 'none';
             }
             gsap.killTweensOf(scene.querySelectorAll('*'));
+        }
+
+        function fadeOutAudio(audio, duration, callback) {
+            const startVolume = audio.volume;
+            gsap.to(audio, {
+                volume: 0,
+                duration: duration,
+                ease: 'linear',
+                onComplete: () => {
+                    audio.pause();
+                    audio.volume = startVolume; // Reset volume for future plays
+                    if (callback) callback();
+                }
+            });
         }
 
         function initScene(index) {
@@ -656,7 +690,6 @@
             }
             if (envelope) {
                 envelope.style.display = 'block';
-                envelope.style.pointerEvents = 'auto';
             }
             if (letter) {
                 letter.style.display = 'block';
@@ -667,6 +700,12 @@
                 createLeaves(scene, 10);
                 const pen = scene.querySelector('.pen');
                 gsap.to(pen, { rotation: 45, duration: 1, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+                if (hasInteracted && audioPlaying) {
+                    audioTracks[0].playbackRate = 1;
+                    audioTracks[0].play().catch(error => {
+                        console.log('Audio play failed:', error);
+                    });
+                }
             } else if (index === 1) {
                 createButterflies(scene, 15);
                 const manuscripts = scene.querySelector('.manuscripts');
@@ -683,22 +722,32 @@
             } else if (index === 5) {
                 createFireflies(scene, 10);
                 const envelopeText = scene.querySelector('.text-container p');
-                gsap.to(envelopeText, { opacity: 1, y: -20, duration: 1.2, delay: 0.5, ease: 'power2.out' });
-                gsap.to(envelope, { y: -10, duration: 1.5, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+                gsap.to(envelopeText, { opacity: 1, y: -20, duration: 1.8, delay: 0.75, ease: 'power2.out' });
+                gsap.to(envelope, { y: -10, duration: 4.5, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+                if (audioPlaying) {
+                    fadeOutAudio(audioTracks[0], 1, () => {
+                        audioTracks[1].play();
+                    });
+                } else {
+                    audioTracks[0].pause();
+                }
+                setTimeout(() => {
+                    if (currentSceneIndex === 5) openEnvelope();
+                }, LS1_DURATION * 1000);
             } else if (index === 6) {
                 createFireflies(scene, 8);
-                gsap.to(letter, { opacity: 1, scale: 1, duration: 1.5, delay: 0.5, ease: 'elastic.out(1, 0.5)' });
+                gsap.to(letter, { opacity: 1, scale: 1, duration: 1.5, delay: 0.75, ease: 'elastic.out(1, 0.5)' });
                 const letterPs = letter.querySelectorAll('p');
-                gsap.to(letterPs, { opacity: 1, y: 0, stagger: 0.2, duration: 1, delay: 1 });
+                gsap.to(letterPs, { opacity: 1, y: 0, stagger: 0.3, duration: 1.5, delay: 1.5 });
             }
 
             if (texts.length > 0 && index !== 6) {
                 gsap.to(texts, {
                     opacity: 1,
                     y: -20,
-                    stagger: 1.5,
-                    duration: 1.2,
-                    delay: 0.5,
+                    stagger: 2.25,
+                    duration: 1.8,
+                    delay: 0.75,
                     ease: 'power2.out',
                     onComplete: () => {
                         if (continueBtn) {
@@ -713,16 +762,14 @@
         function openEnvelope() {
             const envelope = document.querySelector('.envelope');
             envelope.classList.add('open');
-            envelope.style.pointerEvents = 'none';
             gsap.to(envelope, {
                 scale: 0.9,
                 opacity: 0,
-                duration: 0.8,
+                duration: 1.8,
                 ease: 'power2.in',
                 onComplete: () => {
-                    audioTracks[0].pause();
-                    audioTracks[1].volume = audioTracks[0].volume;
-                    audioTracks[1].play();
+                    audioTracks[1].pause();
+                    if (audioPlaying) audioTracks[2].play();
                     currentSceneIndex = 6;
                     initScene(6);
                 }
@@ -739,32 +786,35 @@
         function toggleAudio() {
             audioPlaying = !audioPlaying;
             audioTracks.forEach(track => {
+                track.muted = !audioPlaying;
                 if (audioPlaying) {
-                    if (track === audioTracks[1] && currentSceneIndex !== 6) return;
-                    track.play();
-                } else {
-                    track.pause();
+                    if (currentSceneIndex < 5 && track === audioTracks[0]) {
+                        track.playbackRate = 1.5;
+                        track.play();
+                    }
+                    else if (currentSceneIndex === 5 && track === audioTracks[1]) track.play();
+                    else if (currentSceneIndex === 6 && track === audioTracks[2]) track.play();
                 }
             });
-            document.getElementById('audio-toggle').textContent = audioPlaying ? 'Pause Audio' : 'Play Audio';
+            document.getElementById('volume-toggle').textContent = audioPlaying ? '🔊' : '🔇';
         }
 
-        function adjustVolume(change) {
-            audioTracks.forEach(track => {
-                track.volume = Math.max(0, Math.min(1, track.volume + change));
-            });
-        }
-
-        function skipToLetter() {
-            scenes.forEach(sceneId => {
-                const scene = document.getElementById(sceneId);
-                if (scene) clearScene(scene);
-            });
-            audioTracks[0].pause();
-            audioTracks[1].volume = audioTracks[0].volume;
-            audioTracks[1].play();
-            currentSceneIndex = 6;
-            initScene(6);
+        function handleFirstInteraction() {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                document.getElementById('start-notice').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                if (audioPlaying && currentSceneIndex === 0) {
+                    audioTracks[0].playbackRate = 1.5;
+                    audioTracks[0].play().catch(error => {
+                        console.log('Audio play failed:', error);
+                    });
+                }
+                initScene(0);
+                document.getElementById('start-btn').removeEventListener('click', handleFirstInteraction);
+                document.removeEventListener('click', handleFirstInteraction);
+                document.removeEventListener('touchstart', handleFirstInteraction);
+            }
         }
 
         function setupEventListeners() {
@@ -775,18 +825,12 @@
                     }
                 });
             });
-            document.getElementById('skip-btn').addEventListener('click', skipToLetter);
-            document.getElementById('audio-toggle').addEventListener('click', toggleAudio);
-            document.getElementById('volume-down').addEventListener('click', () => adjustVolume(-0.1));
-            document.getElementById('volume-up').addEventListener('click', () => adjustVolume(0.1));
-            const envelope = document.querySelector('.envelope');
-            if (envelope) {
-                envelope.addEventListener('click', openEnvelope);
-            }
+            document.getElementById('volume-toggle').addEventListener('click', toggleAudio);
+            document.getElementById('start-btn').addEventListener('click', handleFirstInteraction);
+            document.addEventListener('click', handleFirstInteraction);
+            document.addEventListener('touchstart', handleFirstInteraction);
         }
 
-        audioTracks[0].play();
-        initScene(0);
         setupEventListeners();
 
         let touchStartX = 0;
